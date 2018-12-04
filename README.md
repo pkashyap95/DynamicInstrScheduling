@@ -1,4 +1,4 @@
-# DynamicInstrScheduling
+# Dynamic Instruction Scheduling
 
 1. Type "make" to build.  (Type "make clean" first if you already compiled and want to recompile from scratch.)
 
