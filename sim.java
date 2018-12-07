@@ -47,10 +47,10 @@ public class sim
             }
             while(!test_pipeline.advanceCycle());
             //test_pipeline.printContents();
-            //System.out.printf("# === Simulator Command =========\n");
-            //System.out.printf(".\\sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
-            //test_pipeline.displayConfiguration();
-            //test_pipeline.displaySimulationResults();                    
+            System.out.printf("# === Simulator Command =========\n");
+            System.out.printf(".\\sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
+            test_pipeline.displayConfiguration();
+            test_pipeline.displaySimulationResults();                    
         }
         catch (IOException x)                                       // Throw error if file I/O fails
         {

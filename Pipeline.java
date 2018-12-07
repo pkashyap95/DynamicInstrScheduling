@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author Priyank Kashyap
+ * NCSU
  */
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -69,7 +64,6 @@ public class Pipeline {
     }
     
     public void fetch() throws IOException{
-        //System.out.println("Pipeline.fetch()");
         if(DE.size()==0){
             for (int i=0; i<mWidth; i++){ 
                 String line=br.readLine();           
@@ -79,7 +73,6 @@ public class Pipeline {
                 if(line != null){
                     String [] split   = line.split("\\s+");               // split line at whitespace
                     long pc           = Long.parseLong(split[0], 16);             // gets address from String split and converts to long. parseLong uses base 16
-                    //System.out.printf("Input string %s: ", line);
                     temp.instr_number = mDynamicInstrCount;
                     temp.op_type      = Integer.parseInt(split[1], 10);
                     temp.dst_reg      = Integer.parseInt(split[2], 10);
@@ -101,8 +94,10 @@ public class Pipeline {
     }
     
     public void decode(){
-        //
-        //System.out.printf("Sim Time %d ", mSimulatorTime);
+        System.out.println("/////////////////////////////////////////");
+        for(Instruction e: DE){            
+            System.out.println("DE: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }        
         if(DE.size()>0){
             for(Instruction i:DE){
                 if(i != null){
@@ -122,7 +117,9 @@ public class Pipeline {
     }
     
     public void rename(){
-        //System.out.println("Pipeline.rename()");
+        for(Instruction e: RN){            
+            System.out.println("RN: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }
         if(RN.size()>0){ //there is a RN bundle
             for(Instruction i:RN){
                 if(i != null){
@@ -134,7 +131,7 @@ public class Pipeline {
             if((RR.size()== 0) && (mElementsInROB+RN.size())< mROB_Size){ //if RR is empty and there is space in the ROB to accept the RN bundle
                 for(int i= mWidth-1; i >= 0; i--){                    
                     Instruction renameInstr= RN.remove(i);
-                    allocateROB(renameInstr);
+                    allocateROB_arr(renameInstr);
                     
                     RR.add(renameInstr);
                 }
@@ -143,6 +140,9 @@ public class Pipeline {
     }
 
     public void register_read(){
+        for(Instruction e: RR){            
+            System.out.println("RR: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }
         if(RR.size()>0){ 
             for(Instruction i:RR){
                 if(i != null){
@@ -162,6 +162,9 @@ public class Pipeline {
     }    
 
     public void dispatch(){
+        for(Instruction e: DI){            
+            System.out.println("DI: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }
         if(DI.size()>0){
             for(Instruction i:DI){
                 if(i != null){
@@ -180,10 +183,9 @@ public class Pipeline {
     }
 
     public void issue(){
-        System.out.println("/////////////////////////////////////////");
-//        for(Instruction e: IQ){            
-//            System.out.println("IQ: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
-//        }
+        for(Instruction e: IQ){            
+            System.out.println("IQ: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }
         int mRemove=0;
         if(IQ.size()>0){ 
             for(Instruction i:IQ){
@@ -204,7 +206,7 @@ public class Pipeline {
                 Instruction temp = IQ.get(oldest_instr); 
                 IQ.set(oldest_instr, IQ.get(i)); 
                 IQ.set(i, temp); 
-            }
+            }//FIX HERE
             for(int i = 0; i <IQ.size(); i++){
                 if(IQ.get(i).rn_r1_rdy==1 && IQ.get(i).rn_r2_rdy==1){
                     Instruction execInstr = IQ.remove(i);
@@ -214,10 +216,10 @@ public class Pipeline {
         }
     }    
     
-    public void execute(){                
-//        for(Instruction e: execute_list){            
-//            System.out.println(mSimulatorTime + " EX: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"} "+e.stop_execute_time);
-//        };
+    public void execute(){  
+        for(Instruction e: execute_list){            
+            System.out.println("#"+mSimulatorTime+" EX: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_dst_reg+" to WB time: "+e.stop_execute_time);
+        }
         if(execute_list.size()>0){
             for(Instruction i:execute_list){
                 if(i != null){
@@ -239,20 +241,18 @@ public class Pipeline {
                 if(execute_list.get(i).stop_execute_time==mSimulatorTime){
                     Instruction executed= execute_list.remove(i);
                     wakeup(executed);
+                    executed.wb_time= mSimulatorTime;
                     WB.add(executed);
                 }               
             }
         }
-    } 
+    }
+    
     public void writeback(){
+        for(Instruction e: WB){            
+            System.out.println("WB: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"}");
+        }
         if(WB.size()>0){
-            for(Instruction i:WB){
-                if(i != null){
-                    if(i.wb_time == 0){
-                        i.wb_time = mSimulatorTime;
-                    }
-                }
-            }
             for(int i = 0; i <WB.size()-1; i++){
                 int oldest_instr = i;
                 for(int j=i+1; j<WB.size();j++){
@@ -265,7 +265,6 @@ public class Pipeline {
                 WB.set(i, temp); 
             }
             for(int i= 0; i <= WB.size()-1; i++){
-//              Instruction removeFromWB= WB.remove(i);                                 //Instruction to be removed
                 Instruction set_instr_rdy = WB.get(i);
                 if(set_instr_rdy!= null) set_rob_ready(WB.get(i));
             }
@@ -273,11 +272,8 @@ public class Pipeline {
     }   
     
     public void retire(){
-//        for(Instruction e: WB){            
-//            System.out.println(mSimulatorTime + " RT: "+ e.instr_number +" rn_src{"+e.rn_r1_reg+","+e.rn_r2_reg+"} ready{"+e.rn_r1_rdy+","+e.rn_r2_rdy+"} "+e.stop_execute_time);
-//        };
         if(WB.size()>0){
-            int mRetireCOunter=0;
+            int mRetireCounter=0;
             for(Instruction i:WB){
                 if(i != null){
                     if(i.rt_time == 0){
@@ -288,7 +284,6 @@ public class Pipeline {
             for(int i= 0; i < WB.size(); i++){
                 Instruction toRetire = WB.get(i);                
                 int status = remove_rob(toRetire.instr_number);
-                System.out.println(mSimulatorTime + " RT: "+ toRetire.instr_number +" ready{"+toRetire.rn_r1_rdy+","+toRetire.rn_r2_rdy+"} ROB_Stat: "+ status+ " Instr_dst: "+ toRetire.dst_reg + " ROB_DST: "+ toRetire.rob_dest);
                 if(status < 0) break;
                 else {
                     WB.remove(i);
@@ -297,7 +292,7 @@ public class Pipeline {
             }
         }
     }    
-    ///////////////////////////////////////////////////////////////////////////
+    
     public void instructionReady(Instruction readyInstr){
         if( readyInstr.rn_r1_reg ==-1 || readyInstr.rn_r1_reg ==-55){      //both immediate values or both arf values
             readyInstr.rn_r1_rdy = 1;
@@ -318,37 +313,41 @@ public class Pipeline {
             for(Instruction e: RR){
                 if(e.rn_r1_reg==execInstr.rob_dest){
                     e.rn_r1_rdy =1;
+//                    System.out.println("WAKEUP RR R1  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                 }
                 if(e.rn_r2_reg==execInstr.rob_dest){
                     e.rn_r2_rdy =1;
+//                    System.out.println("WAKEUP RR R2  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                 }
             }
-            for(Instruction e: RN){
+            for(Instruction e: DI){
                 if(e.rn_r1_reg==execInstr.rob_dest){
                     e.rn_r1_rdy =1;
+//                    System.out.println("WAKEUP RN R1  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                 }
                 if(e.rn_r2_reg==execInstr.rob_dest){
                     e.rn_r2_rdy =1;
+//                    System.out.println("WAKEUP RN R2  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                 }
             }
             for(Instruction e: IQ){
                 if(e.rn_r1_reg==execInstr.rob_dest){
+//                    System.out.println("WAKEUP IQ R1  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                     e.rn_r1_rdy =1;
                 }
                 if(e.rn_r2_reg==execInstr.rob_dest){
                     e.rn_r2_rdy =1;
+//                    System.out.println("WAKEUP IQ R2  exec:"+ execInstr.instr_number+ " to be woken up:"+ e.instr_number);
                 }
             }
         }
     }
     
     private void set_rob_ready(Instruction completedInstruction){
-        System.out.println(completedInstruction.instr_number +" REDY BIT FOR ROB_LOC "+completedInstruction.rob_dest);
         mROB[completedInstruction.rob_dest].ready_bit=1;
     }
     private int remove_rob(int instrNum){
         reorder_buffer_entry headOfROB = mROB[mROB_Head];
-        System.out.println(mSimulatorTime + " ROB: "+ headOfROB.instr_number +" ready_bit{"+headOfROB.ready_bit+"} dst"+headOfROB.dst+"}");
         if(headOfROB.ready_bit == 1 && instrNum == headOfROB.instr_number){ //instr is ready to retire
             //Check rmt if same instr make it invalid
             rename_table_entry rmt_enter_validation = rename_map_table.get(mROB_Head);
@@ -358,11 +357,12 @@ public class Pipeline {
                 }
             }
             mROB_Head++;
+            mElementsInROB--;
             return 1;
         }
         return -1;
     }
-    public void allocateROB(Instruction addToROB){
+    public void allocateROB_arr(Instruction addToROB){
         reorder_buffer_entry rob_entry = new reorder_buffer_entry();
         rob_entry.ready_bit = 0;
         rob_entry.instr_number = addToROB.instr_number;
@@ -385,8 +385,9 @@ public class Pipeline {
         }
         else{
             mElementsInROB++;
-            rob_entry.dst = mROB_Tail;
+            rob_entry.dst = -1;
             rename_instruction_src(addToROB);
+            addToROB.rob_dest=mROB_Tail;       //instrs knows where in the ROB to look
             mROB[mROB_Tail]=(rob_entry);
             rename_instruction_dst(addToROB);
         }
@@ -505,14 +506,106 @@ public class Pipeline {
 //        for(Instruction e: RN){
 //            System.out.println("RN: "+ e.instr_number);
 //        }
-       for(Integer key:rename_map_table.keySet()){
-           rename_table_entry temp = rename_map_table.get(key);
-           if(temp!= null) System.out.println("Key: " + key+ " Valid: "+temp.valid_bit + " ROB TAG "+ temp.rob_tag+ " INST NUM "+ temp.instr_number);
-       }
-       for(int i=0; i<mROB_Size; i++){
-           reorder_buffer_entry temp = mROB[i];
-           if(temp!= null) System.out.println("ROB_LOC: " + i + " dst: "+temp.dst + " ready "+ temp.ready_bit+ " INST NUM "+ temp.instr_number);
-       }
+//       for(Integer key:rename_map_table.keySet()){
+//           rename_table_entry temp = rename_map_table.get(key);
+//           if(temp!= null) System.out.println("Key: " + key+ " Valid: "+temp.valid_bit + " ROB TAG "+ temp.rob_tag+ " INST NUM "+ temp.instr_number);
+//       }
+//       for(int i=0; i<mROB_Size; i++){
+//           reorder_buffer_entry temp = mROB[i];
+//           if(temp!= null) System.out.println("ROB_LOC: " + i + " dst: "+temp.dst + " ready "+ temp.ready_bit+ " INST NUM "+ temp.instr_number);
+//       }
+//        System.err.println("Number of ROB");
+    }
+        private void enQueue(reorder_buffer_entry entry){ 
+        
+        //ROB is full
+        if ((mROB_Head == 0 && mROB_Tail == mROB_Tail-1) || (mROB_Tail == (mROB_Head-1)%(mROB_Size-1))){ 
+            return; 
+        } 
+
+        else if (mROB_Head == -1) /* Insert First Element */{ 
+            mROB_Head = 0; 
+            mROB_Tail = 0; 
+            mROB[mROB_Tail] = entry; 
+        } 
+        
+        //going circular
+        else if (mROB_Tail == mROB_Size-1 && mROB_Head != 0){ 
+            mROB_Tail = 0; 
+            mROB[mROB_Tail] = entry; 
+        } 
+
+        else { 
+            mROB_Tail++; 
+            mROB[mROB_Tail] = entry; 
+        } 
+    }
+    private reorder_buffer_entry deQueue(){ 
+        //empty queue
+        if (mROB_Head == -1) { 
+            return null; 
+        } 
+
+        reorder_buffer_entry data = mROB[mROB_Head]; 
+        
+        mROB[mROB_Head] = null; 
+        if (mROB_Head == mROB_Tail){ 
+            mROB_Head = -1; 
+            mROB_Tail = -1; 
+        } 
+        else if (mROB_Head == mROB_Size-1) 
+            mROB_Head = 0; 
+        else
+            mROB_Head++; 
+
+        return data; 
+    } 
+    public void allocateROB_cir(Instruction addToROB){
+        reorder_buffer_entry rob_entry = new reorder_buffer_entry();
+        rob_entry.ready_bit = 0;
+        rob_entry.instr_number = addToROB.instr_number;
+        rob_entry.valid = 1;
+        if(addToROB.dst_reg != -1){
+            //Add to the queue
+            rob_entry.dst = addToROB.dst_reg;  //modify the dst for the instr
+            addToROB.rob_dest=mROB_Tail;       //instrs knows where in the ROB to look
+            mROB[mROB_Tail]=rob_entry;         //To the tail add the instr
+            mElementsInROB++;                  //inc number of elements in the ROB
+            //
+            rename_instruction_src(addToROB);  //rename the instr src based on rmt
+            //Add to RMT
+            rename_table_entry rmt_enter = new rename_table_entry();
+            rmt_enter.valid_bit = 1;           //create a rmt entry for the dest reg 
+            rmt_enter.rob_tag   = mROB_Tail;   // 
+            rmt_enter.instr_number = rob_entry.instr_number; 
+            rename_map_table.put(Integer.valueOf(rob_entry.dst),rmt_enter);
+            rename_instruction_dst(addToROB);
+        }
+        else{
+            mElementsInROB++;
+            rob_entry.dst = -1;
+            rename_instruction_src(addToROB);
+            addToROB.rob_dest=mROB_Tail;       //instrs knows where in the ROB to look
+            mROB[mROB_Tail]=(rob_entry);
+            rename_instruction_dst(addToROB);
+        }
+        enQueue(rob_entry);
     }
     
+    private int remove_rob_cir(int instrNum){
+        reorder_buffer_entry headOfROB = mROB[mROB_Head];
+        if(headOfROB.ready_bit == 1 && instrNum == headOfROB.instr_number){ //instr is ready to retire
+            //Check rmt if same instr make it invalid
+            rename_table_entry rmt_enter_validation = rename_map_table.get(mROB_Head);
+            if(rmt_enter_validation!=null){
+                if(rmt_enter_validation.instr_number == headOfROB.instr_number){
+                    rmt_enter_validation.valid_bit = 0;
+                }
+            }
+            deQueue();
+            mElementsInROB--;
+            return 1;
+        }
+        return -1;
+    }
 }

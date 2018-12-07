@@ -28,7 +28,7 @@ public class Instruction
     public int rt_time;
     public Instruction(){}
     public void display_time(){
-        System.out.println(instr_number+" fu{"+op_type+"} src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} FE{"+fe_time+"} DE{"+de_time+"} RN{"+rn_time+"} RR{"+rr_time+"} DI{"+di_time+"} IS{"+is_time+"} EX{"+ex_time+"} RT{"+rt_time+"}");
+        System.out.println(instr_number+" fu{"+op_type+"} src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} FE{"+fe_time+"} DE{"+de_time+"} RN{"+rn_time+"} RR{"+rr_time+"} DI{"+di_time+"} IS{"+is_time+"} EX{"+ex_time+"} WB{"+wb_time+"} RT{"+rt_time+"}");
     }
     public void display_internal(){
         System.out.println(instr_number+" src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} rn_src{"+rn_r1_reg+","+rn_r2_reg+"} ready{"+rn_r1_rdy+","+rn_r2_rdy+"}");
