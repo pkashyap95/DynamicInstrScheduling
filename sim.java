@@ -1,6 +1,6 @@
 import java.io.*;
 import java.util.Objects;
-
+import java.util.ArrayList;
 /* args hold the command line arguments
 
     Example:-
@@ -28,28 +28,34 @@ public class sim
         params.width        = Long.parseLong(args[2]);
         trace_file          = args[3];
 
-        System.out.printf("rob_size:%d iq_size:%d width:%d tracefile:%s%n", params.rob_size, params.iq_size, params.width, trace_file);    // Print and test if file is read correctly 
-        // Read file line by line
-        try (BufferedReader br = new BufferedReader(new FileReader(trace_file)))
-        {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String [] split = line.split("\\s+");               // split line at whitespace
-                pc      = Long.parseLong(split[0], 16);             // gets address from String split and converts to long. parseLong uses base 16
-                op_type = Integer.parseInt(split[1], 10);
-                dest    = Integer.parseInt(split[2], 10);
-                src1    = Integer.parseInt(split[3], 10);
-                src2    = Integer.parseInt(split[4], 10);
-                
-                System.out.printf("%x %d %d %d %d%n", pc, op_type, dest, src1, src2);    // Print and test if file is read correctly 
-                /* ************************************
-                  Add calls to OOO simulator code here
-                **************************************/
+        //System.out.printf("rob_size:%d iq_size:%d width:%d tracefile:%s%n", params.rob_size, params.iq_size, params.width, trace_file);    // Print and test if file is read correctly 
+        try
+        {   
+            Pipeline test_pipeline = new Pipeline(params, trace_file);
+            do{
+                test_pipeline.retire();
+                test_pipeline.writeback();
+                test_pipeline.execute();
+                test_pipeline.issue();
+                test_pipeline.dispatch();
+                test_pipeline.register_read();
+                test_pipeline.rename();
+                test_pipeline.decode();
+                test_pipeline.fetch();
+                test_pipeline.advanceTime();
+                test_pipeline.checkIfPipelineEmpty();
             }
+            while(!test_pipeline.advanceCycle());
+            //test_pipeline.printContents();
+            //System.out.printf("# === Simulator Command =========\n");
+            //System.out.printf(".\\sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
+            //test_pipeline.displayConfiguration();
+            //test_pipeline.displaySimulationResults();                    
         }
         catch (IOException x)                                       // Throw error if file I/O fails
         {
             System.err.format("IOException: %s%n", x);
         }
+
     }
 }
