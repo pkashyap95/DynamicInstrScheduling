@@ -3,4 +3,5 @@ public class reorder_buffer_entry {
     int ready_bit;
     int dst;
     int valid;
+    int rt_time;
 }

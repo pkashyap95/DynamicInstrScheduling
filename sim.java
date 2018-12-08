@@ -1,14 +1,8 @@
 import java.io.*;
-import java.util.Objects;
 import java.util.ArrayList;
-/* args hold the command line arguments
+import java.util.Objects;
+import java.util.Arrays;
 
-    Example:-
-    sim 256 32 4 gcc_trace.txt
-    args[0] = "256"
-    args[1] = "32"
-    ... and so on
-*/
 public class sim
 {
     public static void main(String[] args) {
@@ -46,7 +40,6 @@ public class sim
                 test_pipeline.checkIfPipelineEmpty();
             }
             while(!test_pipeline.advanceCycle());
-            //test_pipeline.printContents();
             System.out.printf("# === Simulator Command =========\n");
             System.out.printf(".\\sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
             test_pipeline.displayConfiguration();
