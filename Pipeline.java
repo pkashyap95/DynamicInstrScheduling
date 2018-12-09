@@ -80,7 +80,7 @@ public class Pipeline {
                     temp.src_r1_reg   = Integer.parseInt(split[3], 10);
                     temp.src_r2_reg   = Integer.parseInt(split[4], 10);
                     temp.fe_time      = mSimulatorTime;
-                    temp.de_time      = mSimulatorTime+1;
+                    temp.de_time      = 0;
                     temp.rn_time      = 0;
                     temp.rt_time      = 0;
                     DE.add(temp);
@@ -96,13 +96,19 @@ public class Pipeline {
 
     public void decode(){  
         if(DE.size()>0){
+            for(Instruction i:DE){
+                if(i != null){
+                    if(i.de_time == 0){
+                        i.de_time = mSimulatorTime;
+                    }
+                }
+            }
             if(RN.size() == 0){
                 int removal = mWidth;
-                if(DE.size() < mWidth) 
+                if(DE.size() <= mWidth) 
                     removal=DE.size();
                 for(int i= 0; i < removal; i++){                    
-                    Instruction temp= DE.get(i);
-                    temp.rn_time = mSimulatorTime+1;
+                    Instruction temp= DE.get(i);                    
                     RN.add(temp);
                 }
 
@@ -115,15 +121,22 @@ public class Pipeline {
     
     public void rename(){
         if(RN.size()>0){ //there is a RN bundle
-            if((RR.size()== 0) && (mElementsInROB+RN.size())< mROB_Size){ //if RR is empty and there is space in the ROB to accept the RN bundle
+            for(Instruction i: RN){
+                if(i != null){
+                    if(i.rn_time == 0){
+                        i.rn_time = mSimulatorTime;
+                    }
+                }
+            }
+            if((RR.size()== 0) && (mElementsInROB+RN.size())<= mROB_Size){ //if RR is empty and there is space in the ROB to accept the RN bundle
                 int removal = mWidth;
-                if(RN.size() < mWidth) 
+                if(RN.size() <= mWidth) 
                     removal=RN.size();
                 for(int i= 0; i < removal; i++){                    
                     Instruction temp= RN.get(i);
-                    allocateROB_arr(temp);
-                    temp.rr_time = mSimulatorTime+1;                    
+                    allocateROB_arr(temp);                
                     RR.add(temp);
+                    //System.out.println("mROB_Head: "+ mROB_Head + " mROB_Tail: "+ mROB_Tail + " # of ELE: "+mElementsInROB);
                 }
 
                 for(int i=removal-1; i >= 0; i--){
@@ -135,9 +148,16 @@ public class Pipeline {
 
     public void register_read(){
         if(RR.size()>0){
+            for(Instruction i:RR){
+                if(i != null){
+                    if(i.rr_time == 0){
+                        i.rr_time = mSimulatorTime;
+                    }
+                }
+            }
             if(DI.size() == 0){
                 int removal = mWidth;
-                if(RR.size() < mWidth) 
+                if(RR.size() <= mWidth) 
                     removal=RR.size();
                 for(int i= 0; i < removal; i++){                    
                     Instruction temp= RR.get(i);
@@ -157,6 +177,13 @@ public class Pipeline {
     
     public void dispatch(){
         if(DI.size()>0){
+            for(Instruction i:DI){
+                if(i != null){
+                    if(i.di_time == 0){
+                        i.di_time = mSimulatorTime;
+                    }
+                }
+            }
             if(DI.size() <= (mIQ_Size- IQ.size())){
                 int removal = mWidth;
                 if(DI.size() < mWidth)
@@ -164,7 +191,6 @@ public class Pipeline {
                 
                 for(int i= 0; i < removal; i++){
                     Instruction temp= DI.get(i);
-                    temp.is_time= mSimulatorTime+1;
 //                    System.out.print("DI: ");
 //                    temp.display_internal();
                     IQ.add(temp);
@@ -182,6 +208,13 @@ public class Pipeline {
         int currentExec = 0;
         if(IQ.size()>0){ 
             //Sort IQ
+            for(Instruction i:IQ){
+                if(i != null){
+                    if(i.is_time == 0){
+                        i.is_time = mSimulatorTime;
+                    }
+                }
+            }
             for(int i = 0; i <IQ.size()-1; i++){
                 int oldest_instr = i;
                 for(int j=i+1; j<IQ.size();j++){
@@ -199,7 +232,7 @@ public class Pipeline {
             for(int i = 0; i <removal; i++){
                 Instruction temp= IQ.get(i);
                 if(temp.rn_r1_rdy==1 && temp.rn_r2_rdy==1){
-                    if(currentExec ==possibleExec){
+                    if(currentExec == possibleExec){
                         break;
                     }
                     //temp.ex_time =mSimulatorTime+1;
@@ -231,7 +264,7 @@ public class Pipeline {
                 }
             }
             int removal = mWidth*5;
-            if(execute_list.size() < (mWidth*5)) removal =execute_list.size(); 
+            if(execute_list.size() <= (mWidth*5)) removal =execute_list.size(); 
             for(int i = 0; i <removal; i++){
                 Instruction temp= execute_list.get(i);
                 if(temp.stop_execute_time == mSimulatorTime){
