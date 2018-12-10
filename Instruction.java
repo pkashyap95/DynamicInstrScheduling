@@ -38,7 +38,7 @@ public class Instruction
                 "IS{"+is_time+","+(ex_time-is_time)+"} "+
                 "EX{"+ex_time+","+(wb_time-ex_time)+"} "+
                 "WB{"+wb_time+","+(rt_time-wb_time)+"} "+
-                "RT{"+rt_time+","+(finish_time-rt_time)+"} ");
+                "RT{"+rt_time+","+(finish_time)+"} ");
     }
     public void display_internal(){
         System.out.println(instr_number+" src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} rn_src{"+rn_r1_reg+","+rn_r2_reg+"} ready{"+rn_r1_rdy+","+rn_r2_rdy+"} rob_dst: "+rob_dest);

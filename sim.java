@@ -36,6 +36,7 @@ public class sim
                 test_pipeline.rename();
                 test_pipeline.decode();
                 test_pipeline.fetch();
+//                System.out.println("------------");
                 test_pipeline.advanceTime();
                 test_pipeline.checkIfPipelineEmpty();
             }
