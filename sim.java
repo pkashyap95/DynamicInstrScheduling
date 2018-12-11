@@ -42,7 +42,7 @@ public class sim
             }
             while(!test_pipeline.advanceCycle());
             System.out.printf("# === Simulator Command =========\n");
-            System.out.printf(".\\sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
+            System.out.printf("#./sim %d %d %d %s \n", params.rob_size, params.iq_size, params.width, trace_file);
             test_pipeline.displayConfiguration();
             test_pipeline.displaySimulationResults();                    
         }

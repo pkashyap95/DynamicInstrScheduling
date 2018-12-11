@@ -29,7 +29,7 @@ public class Instruction
     public int finish_time;
     public Instruction(){}
     public void display_time(){
-        System.out.println("#"+instr_number+" fu{"+op_type+"} src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} "+
+        System.out.println(instr_number+" fu{"+op_type+"} src{"+src_r1_reg+","+src_r2_reg+"} dst{"+dst_reg+"} "+
                 "FE{"+fe_time+","+(de_time-fe_time)+"} "+
                 "DE{"+de_time+","+(rn_time-de_time)+"} "+
                 "RN{"+rn_time+","+(rr_time-rn_time)+"} "+
